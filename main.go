@@ -21,6 +21,7 @@ func main() {
     }
 
     goPath := os.Getenv("GOPATH")
+    os.RemoveAll(goPath + "/src/" + repo)
     fmt.Printf("simulating: go get -u %s@%s\n", repo, version)
     cmd := exec.Command("go", "get", "-u", repo)
     cmd.Dir = goPath
@@ -31,6 +32,13 @@ func main() {
     cmd = exec.Command("git", "checkout", fmt.Sprintf("tags/v%s", version))
     cmd.Dir = goPath + "/src/" + repo
     fmt.Printf("git checkout tags/v%s (%s)\n", version, cmd.Dir)
+    if err := cmd.Run(); err != nil {
+        panic(err)
+    }
+
+    cmd = exec.Command("go", "get")
+    cmd.Dir = goPath + "/src/" + repo
+    fmt.Printf("go get\n")
     if err := cmd.Run(); err != nil {
         panic(err)
     }
@@ -47,5 +55,5 @@ func main() {
         panic(err)
     }
 
-    fmt.Printf("Installed %s@%s", repo+subPath, version)
+    fmt.Printf("Installed %s@%s\n", repo+subPath, version)
 }
